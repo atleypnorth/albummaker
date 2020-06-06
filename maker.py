@@ -32,6 +32,8 @@ class AlbumnMaker:
         self.template_dir = Path(__file__).parents[0] / Path('styles') / Path(self.style)
         self.environ = Environment(loader=FileSystemLoader(self.template_dir))
         self.title = title
+        self.thumbnail_size = self.config.get('thumbnail_size', [240, 240])
+        self.image_size = self.config.get('image_size', [500, 500])
 
     def scan_input_dir(self):
         """Scan input dir for files
@@ -52,20 +54,20 @@ class AlbumnMaker:
         template = self.environ.get_template('image.tmpl')
         output = Path(workdir) / Path('images') / Path(f"{file.stem}.html")
         with Image.open(file) as im:
-            im.thumbnail((240, 240))
+            im.thumbnail(self.thumbnail_size)
             thumbfile = self.thumb_dir / Path(file.name)
             im.save(thumbfile)
             entry['thumb_width'] = im.width
             entry['thumb_height'] = im.height
         with Image.open(file) as im:
-            im.thumbnail((500, 500))
+            im.thumbnail(self.image_size)
             resized_file = self.image_dir / Path(file.name)
             im.save(resized_file)
             entry['image_width'] = im.width
             entry['image_height'] = im.height
         entry['image_file'] = file.name
         with output.open('w') as outfile:
-            template.stream(entry=entry, title=self.title, padding=2).dump(outfile)
+            template.stream(entry=entry, title=self.title).dump(outfile)
         entry['thumb'] = f"thumbs/{file.name}"
 
     def make_index(self, workdir):
