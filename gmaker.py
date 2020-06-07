@@ -5,6 +5,7 @@ from maker import AlbumMaker, _logger as maker_logger
 from pathlib import Path
 import logging
 import yaml
+import webbrowser
 
 
 class GUILoggingHandler(logging.Handler):
@@ -66,6 +67,11 @@ class AlbumMakerGUI(tk.Frame):
         self.output.config(yscrollcommand=ybar.set)
         ybar.grid(column=3, row=5, sticky="NS")
 
+        # Options
+        self.launch_browser = tk.IntVar(value=1)
+        self.browser = ttk.Checkbutton(self, text="Launch browser on generate and upload", variable=self.launch_browser)
+        self.browser.grid(column=0, row=9, sticky='W')
+
         # Command buttons
         self.generate = ttk.Button(self, text='Generate', command=self.generate, state='disabled')
         self.generate.grid(column=0, row=10)
@@ -97,6 +103,9 @@ class AlbumMakerGUI(tk.Frame):
             maker = AlbumMaker()
             maker.configure(None, self.folder.get(), None, self.who_values[self.who_choice.current()].lower())
             maker.generate()
+            if self.launch_browser.get():
+                url = maker.output_dir / Path('index.html')
+                webbrowser.open(url, new=2)
             self.output.insert(tk.END, '======== Done generating\n')
             self.upload['state'] = 'normal'
         except Exception as e:
@@ -114,8 +123,10 @@ class AlbumMakerGUI(tk.Frame):
             self.update()
             maker = AlbumMaker()
             maker.configure(None, self.folder.get(), None, self.who_values[self.who_choice.current()].lower())
-            maker.upload()
+            url = maker.upload()
             self.output.insert(tk.END, '======== Done upload\n')
+            if self.launch_browser.get():
+                webbrowser.open(url, new=2)
         except Exception as e:
             self.output.insert(tk.END, '======== FAILED: ' + str(e) + '\n')
         finally:
