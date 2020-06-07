@@ -15,7 +15,12 @@ class AlbumMaker:
     """Create an album of school work and upload via SFTP
     """
 
-    def __init__(self, config_file, input_dir, title, who):
+    def __init__(self, noupload):
+        """
+        """
+        self.noupload = noupload
+
+    def configure(self, config_file, input_dir, title, who):
         """
         :param config_file: Yaml file with settings, if None will look for config.yml in this directory
         :param input_dir: Directory with input files
@@ -50,6 +55,7 @@ class AlbumMaker:
         self.environ = Environment(loader=FileSystemLoader(self.template_dir))
         self.thumbnail_size = self.config.get('thumbnail_size', [240, 240])
         self.image_size = self.config.get('image_size', [500, 500])
+        return self
 
     def scan_input_dir(self):
         """Scan input dir for files
@@ -183,7 +189,8 @@ class AlbumMaker:
         self.scan_input_dir()
         self.make_index(self.output_dir)
         self.copy_resources(self.output_dir)
-        self.upload(self.output_dir)
+        if not self.noupload:
+            self.upload(self.output_dir)
 
 
 if __name__ == '__main__':
@@ -193,5 +200,6 @@ if __name__ == '__main__':
     parser.add_argument('input_dir')
     parser.add_argument('--title')
     parser.add_argument('--config_file')
+    parser.add_argument('--noupload', action='store_true')
     args = parser.parse_args()
-    AlbumMaker(args.config_file, args.input_dir, args.title, args.who).execute()
+    AlbumMaker(args.noupload).configure(args.config_file, args.input_dir, args.title, args.who).execute()
