@@ -2,9 +2,13 @@
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
 <title>{{ title }}</title>
 <link rel="stylesheet" type="text/css" href="resources/st.css"></head>
-<body><div class="hdr">{{ title }}</div>
-<div class="btnd">Index Page</div>
-<div class="btnd">Previous Page</div>
+<body><div class="hdr"><a href="index.html">{{ title }}</a></div>
+{% if prev_page %}
+<div class="btnd"><a href="{{prev_page}}">Previous Page</a></div>
+{% endif %}
+{% if next_page %}
+<div class="btnd"><a href="{{next_page}}">Next Page</a></div>
+{% endif %}
 <div class="emln"><img src="res/sp.gif" width="1" height="10" border="0"></div>
 {% for entry in entries %}
 {% if entry.type == 'image' %}
@@ -13,9 +17,13 @@
 <a href="{{ entry.link }}" class="pht"><h3>{{ entry.link_text }}</h3> Click to view</a>
 {% endif %}
 {% endfor %}
-<div class="emln"><img src="res/sp.gif" width="1" height="10" border="0"></div>
-<div class="emln"><img src="res/sp.gif" width="1" height="10" border="0"></div>
-<div class="emln"><img src="res/sp.gif" width="1" height="10" border="0"></div>
-<div class="btnd2">Previous Page</div>
-<div class="btnd2">Index Page</div>
+<div class="emln"><img src="resources/sp.gif" width="1" height="10" border="0"></div>
+<div class="emln"><img src="resources/sp.gif" width="1" height="10" border="0"></div>
+<div class="emln"><img src="resources/sp.gif" width="1" height="10" border="0"></div>
+{% if prev_page %}
+<div class="btnd"><a href="{{prev_page}}">Previous Page</a></div>
+{% endif %}
+{% if next_page %}
+<div class="btnd"><a href="{{next_page}}">Next Page</a></div>
+{% endif %}
 </body></html>
