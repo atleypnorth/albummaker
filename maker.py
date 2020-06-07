@@ -177,6 +177,9 @@ class AlbumMaker:
                     for file in src_dir.glob('*'):
                         _logger.info(f"Uploading {file.name}")
                         sftp.put(file, upload_base + f'/{subdir}/{file.name}')
+        url = self.config['target']['url'] + upload_base + '/index.html'
+        _logger.info(url)
+        return url
 
     def generate(self):
         """
@@ -196,5 +199,5 @@ if __name__ == '__main__':
     parser.add_argument('--config_file')
     parser.add_argument('--noupload', action='store_true')
     args = parser.parse_args()
-    maker = AlbumMaker(args.noupload).configure(args.config_file, args.input_dir, args.title, args.who)
+    maker = AlbumMaker().configure(args.config_file, args.input_dir, args.title, args.who)
     getattr(maker, args.command)()
