@@ -13,18 +13,22 @@ _logger = logging.getLogger()
 
 class AlbumMaker:
 
-    def __init__(self, config_file, input_dir, output_dir, title):
+    def __init__(self, config_file, input_dir, title, who):
         """
         :param config_file: Yaml file with settings, if None will look for config.yml in this directory
         :param title: If none will default to directory name of input
         """
+        self.who = who
+
         if config_file is None:
             config_file = Path(__file__).parents[0] / Path('config.yml')
         with open(config_file) as infile:
             self.config = yaml.safe_load(infile)
         self.input_dir = Path(input_dir)
-        self.output_dir = Path(output_dir)
-        self.output_dir.mkdir(exist_ok=True)
+
+        self.album_dirname = self.input_dir.name.lower().replace(' ', '')
+        self.output_dir = Path(self.config['local_dir'].format(who=self.who)) / Path(self.album_dirname)
+        self.output_dir.mkdir(exist_ok=True, parents=True)
         self.image_dir = self.output_dir / Path('images')
         self.image_dir.mkdir(exist_ok=True)
         self.thumb_dir = self.output_dir / Path('thumbs')
@@ -150,7 +154,7 @@ class AlbumMaker:
         """
         target = self.config['target']
         password = base64.b64decode(target['password']).decode()
-        upload_base = target['directory'] + '/' + self.input_dir.name.lower().replace(' ', '')
+        upload_base = target['directory'].format(who=self.who) + '/' + self.input_dir.name.lower().replace(' ', '')
         _logger.info(f"Uploading to {upload_base}")
         with paramiko.Transport((target['server'], target.get('port', 22))) as transport:
             transport.connect(username=target['username'], password=password)
@@ -181,9 +185,9 @@ class AlbumMaker:
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     parser = ArgumentParser()
-    parser.add_argument('--config_file')
     parser.add_argument('input_dir')
-    parser.add_argument('output_dir')
     parser.add_argument('--title')
+    parser.add_argument('--who')
+    parser.add_argument('--config_file')
     args = parser.parse_args()
-    AlbumMaker(args.config_file, args.input_dir, args.output_dir, args.title).execute()
+    AlbumMaker(args.config_file, args.input_dir, args.title, args.who).execute()
