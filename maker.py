@@ -8,17 +8,12 @@ from PIL import Image
 import base64
 import paramiko
 
-_logger = logging.getLogger()
+_logger = logging.getLogger('maker')
 
 
 class AlbumMaker:
     """Create an album of school work and upload via SFTP
     """
-
-    def __init__(self, noupload):
-        """
-        """
-        self.noupload = noupload
 
     def configure(self, config_file, input_dir, title, who):
         """
@@ -55,6 +50,9 @@ class AlbumMaker:
         self.environ = Environment(loader=FileSystemLoader(self.template_dir))
         self.thumbnail_size = self.config.get('thumbnail_size', [240, 240])
         self.image_size = self.config.get('image_size', [500, 500])
+        _logger.info(f"Workdir is {self.output_dir}")
+        _logger.info(f"Input dir is {self.input_dir}")
+        _logger.info(f"Title is {self.title}")
         return self
 
     def scan_input_dir(self):
@@ -159,7 +157,7 @@ class AlbumMaker:
             sftp.mkdir(directory)
             _logger.info(f"Created {directory}")
 
-    def upload(self, workdir):
+    def upload(self):
         """Upload directory to server
         """
         target = self.config['target']
@@ -180,17 +178,12 @@ class AlbumMaker:
                         _logger.info(f"Uploading {file.name}")
                         sftp.put(file, upload_base + f'/{subdir}/{file.name}')
 
-    def execute(self):
+    def generate(self):
         """
         """
-        _logger.info(f"Workdir is {self.output_dir}")
-        _logger.info(f"Input dir is {self.input_dir}")
-        _logger.info(f"Title is {self.title}")
         self.scan_input_dir()
         self.make_index(self.output_dir)
         self.copy_resources(self.output_dir)
-        if not self.noupload:
-            self.upload(self.output_dir)
 
 
 if __name__ == '__main__':
@@ -198,8 +191,10 @@ if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('who')
     parser.add_argument('input_dir')
+    parser.add_argument('command', choices=['generate', 'upload'])
     parser.add_argument('--title')
     parser.add_argument('--config_file')
     parser.add_argument('--noupload', action='store_true')
     args = parser.parse_args()
-    AlbumMaker(args.noupload).configure(args.config_file, args.input_dir, args.title, args.who).execute()
+    maker = AlbumMaker(args.noupload).configure(args.config_file, args.input_dir, args.title, args.who)
+    getattr(maker, args.command)()
