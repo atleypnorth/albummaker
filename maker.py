@@ -5,11 +5,13 @@ import logging
 from jinja2 import FileSystemLoader, Environment
 import shutil
 from PIL import Image
+import base64
+import paramiko
 
 _logger = logging.getLogger()
 
 
-class AlbumnMaker:
+class AlbumMaker:
 
     def __init__(self, config_file, input_dir, output_dir, title):
         """
@@ -134,6 +136,36 @@ class AlbumnMaker:
         for resource in resource_source.glob('*'):
             shutil.copy(resource, resource_target)
 
+    def _create_remote_directory(self, sftp, directory):
+        """
+        """
+        try:
+            sftp.stat(directory)
+        except Exception:
+            sftp.mkdir(directory)
+            _logger.info(f"Created {directory}")
+
+    def upload(self, workdir):
+        """Upload directory to server
+        """
+        target = self.config['target']
+        password = base64.b64decode(target['password']).decode()
+        upload_base = target['directory'] + '/' + self.input_dir.name.lower().replace(' ', '')
+        _logger.info(f"Uploading to {upload_base}")
+        with paramiko.Transport((target['server'], target.get('port', 22))) as transport:
+            transport.connect(username=target['username'], password=password)
+            with paramiko.SFTPClient.from_transport(transport) as sftp:
+                self._create_remote_directory(sftp, upload_base)
+                for file in self.output_dir.glob('*.html'):
+                    _logger.info(f"Uploading {file.name}")
+                    sftp.put(file, upload_base + f'/{file.name}')
+                for subdir in ['images', 'resources', 'thumbs']:
+                    self._create_remote_directory(sftp, upload_base + f'/{subdir}')
+                    src_dir = self.output_dir / Path(subdir)
+                    for file in src_dir.glob('*'):
+                        _logger.info(f"Uploading {file.name}")
+                        sftp.put(file, upload_base + f'/{subdir}/{file.name}')
+
     def execute(self):
         """
         """
@@ -143,6 +175,7 @@ class AlbumnMaker:
         self.scan_input_dir()
         self.make_index(self.output_dir)
         self.copy_resources(self.output_dir)
+        self.upload(self.output_dir)
 
 
 if __name__ == '__main__':
@@ -153,4 +186,4 @@ if __name__ == '__main__':
     parser.add_argument('output_dir')
     parser.add_argument('--title')
     args = parser.parse_args()
-    AlbumnMaker(args.config_file, args.input_dir, args.output_dir, args.title).execute()
+    AlbumMaker(args.config_file, args.input_dir, args.output_dir, args.title).execute()
