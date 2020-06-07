@@ -12,11 +12,15 @@ _logger = logging.getLogger()
 
 
 class AlbumMaker:
+    """Create an album of school work and upload via SFTP
+    """
 
     def __init__(self, config_file, input_dir, title, who):
         """
         :param config_file: Yaml file with settings, if None will look for config.yml in this directory
+        :param input_dir: Directory with input files
         :param title: If none will default to directory name of input
+        :param who:
         """
         self.who = who
 
@@ -185,9 +189,9 @@ class AlbumMaker:
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     parser = ArgumentParser()
+    parser.add_argument('who')
     parser.add_argument('input_dir')
     parser.add_argument('--title')
-    parser.add_argument('--who')
     parser.add_argument('--config_file')
     args = parser.parse_args()
     AlbumMaker(args.config_file, args.input_dir, args.title, args.who).execute()
