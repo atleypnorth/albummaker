@@ -39,7 +39,7 @@ class AlbumMaker:
         self.thumb_dir.mkdir(exist_ok=True)
 
         self.image_suffix = self.config.get('image_suffix', ['.jpg'])
-        self.other_suffix = self.config.get('other_suffix', ['.pdf', '.mov'])
+        self.other_suffix = self.config.get('other_suffix', ['.pdf', '.mov', '.mp4'])
 
         self.per_page = self.config.get('per_page', 12)
         self.style = self.config.get('style', 'default')
