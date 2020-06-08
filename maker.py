@@ -8,9 +8,11 @@ from PIL import Image
 import base64
 import paramiko
 
+from config import AlbumMakerConfig
+
 _logger = logging.getLogger('maker')
 
-
+   
 class AlbumMaker:
     """Create an album of school work and upload via SFTP
     """
@@ -23,33 +25,22 @@ class AlbumMaker:
         :param who:
         """
         self.who = who
+        self._config = AlbumMakerConfig(config_file)
 
-        if config_file is None:
-            config_file = Path(__file__).parents[0] / Path('config.yml')
-        with open(config_file) as infile:
-            self.config = yaml.safe_load(infile)
         self.input_dir = Path(input_dir)
-
         self.album_dirname = self.input_dir.name.lower().replace(' ', '')
-        self.output_dir = Path(self.config['local_dir'].format(who=self.who)) / Path(self.album_dirname)
+        self.output_dir = Path(self._config.local_dir) / Path(self.who) / Path(self.album_dirname)
         self.output_dir.mkdir(exist_ok=True, parents=True)
         self.image_dir = self.output_dir / Path('images')
         self.image_dir.mkdir(exist_ok=True)
         self.thumb_dir = self.output_dir / Path('thumbs')
         self.thumb_dir.mkdir(exist_ok=True)
 
-        self.image_suffix = self.config.get('image_suffix', ['.jpg'])
-        self.other_suffix = self.config.get('other_suffix', ['.pdf', '.mov', '.mp4'])
-
-        self.per_page = self.config.get('per_page', 12)
-        self.style = self.config.get('style', 'default')
         if title is None:
             self.title = self.input_dir.name
 
-        self.template_dir = Path(__file__).parents[0] / Path('styles') / Path(self.style)
+        self.template_dir = Path(__file__).parents[0] / Path('styles') / Path(self._config.style)
         self.environ = Environment(loader=FileSystemLoader(self.template_dir))
-        self.thumbnail_size = self.config.get('thumbnail_size', [240, 240])
-        self.image_size = self.config.get('image_size', [500, 500])
         _logger.info(f"Workdir is {self.output_dir}")
         _logger.info(f"Input dir is {self.input_dir}")
         _logger.info(f"Title is {self.title}")
@@ -61,10 +52,10 @@ class AlbumMaker:
         self.files = []
         for file in self.input_dir.glob('*'):
             file_suffix = file.suffix.lower()
-            if file_suffix in self.image_suffix:
+            if file_suffix in self._config.image_suffix:
                 _logger.info(f"Adding {file}")
                 self.files.append((file, 'image'))
-            elif file_suffix in self.other_suffix:
+            elif file_suffix in self._config.other_suffix:
                 _logger.info(f"Adding {file}")
                 self.files.append((file, 'other'))
 
@@ -74,13 +65,13 @@ class AlbumMaker:
         template = self.environ.get_template('image.tmpl')
         output = Path(workdir) / Path('images') / Path(f"{file.stem}.html")
         with Image.open(file) as im:
-            im.thumbnail(self.thumbnail_size)
+            im.thumbnail(self._config.thumbnail_size)
             thumbfile = self.thumb_dir / Path(file.name)
             im.save(thumbfile)
             entry['thumb_width'] = im.width
             entry['thumb_height'] = im.height
         with Image.open(file) as im:
-            im.thumbnail(self.image_size)
+            im.thumbnail(self._config.image_size)
             resized_file = self.image_dir / Path(file.name)
             im.save(resized_file)
             entry['image_width'] = im.width
@@ -132,7 +123,7 @@ class AlbumMaker:
                 entry['link'] = f'images/{file.name}'
                 shutil.copy(file, self.image_dir)
             entries.append(entry)
-            if len(entries) == self.per_page:
+            if len(entries) == self._config.per_page:
                 self._write_page(workdir, entries, page_number, file_number == len(self.files) + 1)
                 entries = []
                 page_number += 1
@@ -160,9 +151,9 @@ class AlbumMaker:
     def upload(self):
         """Upload directory to server
         """
-        target = self.config['target']
+        target = self._config.target
         password = base64.b64decode(target['password']).decode()
-        upload_base = target['directory'].format(who=self.who) + '/' + self.input_dir.name.lower().replace(' ', '')
+        upload_base = target['directory'] + '/' + self.who + '/' + self.input_dir.name.lower().replace(' ', '')
         _logger.info(f"Uploading to {upload_base}")
         with paramiko.Transport((target['server'], target.get('port', 22))) as transport:
             transport.connect(username=target['username'], password=password)
@@ -177,7 +168,7 @@ class AlbumMaker:
                     for file in src_dir.glob('*'):
                         _logger.info(f"Uploading {file.name}")
                         sftp.put(file, upload_base + f'/{subdir}/{file.name}')
-        url = self.config['target']['url'] + upload_base + '/index.html'
+        url = self._config.target['url'] + upload_base + '/index.html'
         _logger.info(url)
         return url
 

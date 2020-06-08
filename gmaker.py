@@ -1,15 +1,17 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
-from maker import AlbumMaker, _logger as maker_logger
 from pathlib import Path
 import logging
 import yaml
 import webbrowser
 
+from maker import AlbumMaker, _logger as maker_logger
+from config import AlbumMakerConfig
+
 
 class GUILoggingHandler(logging.Handler):
-    """
+    """Put log messages into a Text widget
     """
 
     def __init__(self, text_area, *args, **kwargs):
@@ -23,16 +25,15 @@ class GUILoggingHandler(logging.Handler):
 
 
 class AlbumMakerGUI(tk.Frame):
-
+    """
+    """
+    
     def __init__(self, master=None, config_file=None):
         super().__init__(master)
         self.master = master
         self.pack()
-        if config_file is None:
-            config_file = Path(__file__).parents[0] / Path('config.yml')
-        with open(config_file) as infile:
-            self.album_config = yaml.safe_load(infile)
-        self.who_values = self.album_config['who']
+        self.album_config = AlbumMakerConfig(config_file)
+        self.who_values = self.album_config.who
         self.create_widgets()
         log_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
         maker_logger.setLevel(logging.INFO)
