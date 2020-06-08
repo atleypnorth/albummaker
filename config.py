@@ -1,4 +1,5 @@
 import yaml
+import base64
 from pathlib import Path
 
 
@@ -28,6 +29,12 @@ class AlbumMakerConfig:
         self._image_size = self._config.get('image_size', [500, 500])
         self._local_dir = self._config.get('local_dir', str(Path.home() / Path('albums')))
         self._target = self._config.get('target', {})
+        self._target_password = self._target.get('password')
+        self._target_directory = self._target.get('directory')
+        self._target_server = self._target.get('server')
+        self._target_port = self._target.get('port', 22)
+        self._target_url = self._target.get('url')
+        self._target_username = self._target.get('username')
         self._who = self._config.get('who', ['noname'])
         self._save_config(config_file)
 
@@ -62,25 +69,48 @@ class AlbumMakerConfig:
         return self._image_size
     
     @property
-    def target(self):
-        return self._target
-
-    @property
     def who(self):
         return self._who
         
+    @property
+    def target_password(self):
+        return base64.b64decode(self._target_password).decode()
+
+    @property
+    def target_directory(self):
+        return self._target_directory
+        
+    @property
+    def target_server(self):
+        return self._target_server
+    
+    @property
+    def target_url(self):
+        return self._target_url
+    
+    @property
+    def target_username(self):
+        return self._target_username
+    
+    @property
+    def target_port(self):
+        return self._target_port
+    
     def _create_empty_config(self, config_file):
         """
         """
         with config_file.open('w') as outfile:
-            data = {'target': {}, 'who': ['person1'], 'per_page': 12, 'image_size': [500, 500],
-                'thumbnail_size': [240, 240]}
+            data = {'target': {'directory': self._target_directory, 'password': self._target_password, 'username': self._target_username, 'url': self._target_url, 
+                               'server': self._target_server}, 
+                    'who': ['person1'], 'per_page': 12, 'image_size': [500, 500], 'thumbnail_size': [240, 240]}
             yaml.dump(data, outfile)
 
     def _save_config(self, config_file):
         """
         """
         with config_file.open('w') as outfile:
-            yaml.dump({'target': self.target, 'who': self.who, 'per_page': self.per_page, 'image_size': self.image_size,
+            yaml.dump({'target':  {'directory': self._target_directory, 'password': self._target_password, 'username': self._target_username, 'url': self._target_url, 
+                                   'server': self._target_server, 'port': self._target_port}, 
+                       'who': self.who, 'per_page': self.per_page, 'image_size': self.image_size,
                 'thumbnail_size': self.thumbnail_size, 'style': self.style, 'local_dir': str(self.local_dir),
                 'image_suffix': self.image_suffix, 'other_suffix': self.other_suffix}, outfile)

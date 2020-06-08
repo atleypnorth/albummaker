@@ -1,11 +1,9 @@
 from pathlib import Path
 from argparse import ArgumentParser
-import yaml
 import logging
 from jinja2 import FileSystemLoader, Environment
 import shutil
 from PIL import Image
-import base64
 import paramiko
 
 from config import AlbumMakerConfig
@@ -151,12 +149,10 @@ class AlbumMaker:
     def upload(self):
         """Upload directory to server
         """
-        target = self._config.target
-        password = base64.b64decode(target['password']).decode()
-        upload_base = target['directory'] + '/' + self.who + '/' + self.input_dir.name.lower().replace(' ', '')
+        upload_base =self._config.target_directory + '/' + self.who + '/' + self.input_dir.name.lower().replace(' ', '')
         _logger.info(f"Uploading to {upload_base}")
-        with paramiko.Transport((target['server'], target.get('port', 22))) as transport:
-            transport.connect(username=target['username'], password=password)
+        with paramiko.Transport((self._config.target_server, self._config.target_port)) as transport:
+            transport.connect(username=self._config.target_username, password=self._config.target_password)
             with paramiko.SFTPClient.from_transport(transport) as sftp:
                 self._create_remote_directory(sftp, upload_base)
                 for file in self.output_dir.glob('*.html'):
@@ -168,7 +164,7 @@ class AlbumMaker:
                     for file in src_dir.glob('*'):
                         _logger.info(f"Uploading {file.name}")
                         sftp.put(file, upload_base + f'/{subdir}/{file.name}')
-        url = self._config.target['url'] + upload_base + '/index.html'
+        url = self._config.target_url + upload_base + '/index.html'
         _logger.info(url)
         return url
 
