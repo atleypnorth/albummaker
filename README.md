@@ -5,11 +5,20 @@ work with the teachers
 
 # Installation
 
-Something like::
+Something like this for Windows
 
+```
   python -m venv venv
   venv\Scripts\activate.bat
   pip install -r requirements.txt
+```
+
+This for Linux
+```
+  python -m venv venv
+  venv/bin/activate
+  pip install -r requirements.txt
+```
 
 ## maker.py
 
@@ -21,4 +30,5 @@ Simple GUI
 
 ## Configuration
 
-Expects to find a YAML file called config.yml somewhere with some settings in it - will be described below
+Defaults to a file called `~/.amaker/config.yml` but provide a different one.
+
