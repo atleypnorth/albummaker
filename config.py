@@ -16,7 +16,7 @@ class AlbumMakerConfig:
             if not config_path.exists():
                 config_path.mkdir()
             if not config_file.exists():
-                self._create_empty_config(config_file)        
+                self._create_empty_config(config_file)
 
         with open(config_file) as infile:
             self._config = yaml.safe_load(infile)
@@ -44,14 +44,18 @@ class AlbumMakerConfig:
         """
         return self._local_dir
 
+    @local_dir.setter
+    def local_dir(self, value):
+        self._local_dir = value
+
     @property
     def image_suffix(self):
         return self._image_suffix
-    
+
     @property
     def other_suffix(self):
         return self._other_suffix
-    
+
     @property
     def per_page(self):
         return self._per_page
@@ -63,15 +67,15 @@ class AlbumMakerConfig:
     @property
     def thumbnail_size(self):
         return self._thumbnail_size
-    
+
     @property
     def image_size(self):
         return self._image_size
-    
+
     @property
     def who(self):
         return self._who
-        
+
     @property
     def target_password(self):
         return base64.b64decode(self._target_password).decode()
@@ -79,29 +83,30 @@ class AlbumMakerConfig:
     @property
     def target_directory(self):
         return self._target_directory
-        
+
     @property
     def target_server(self):
         return self._target_server
-    
+
     @property
     def target_url(self):
         return self._target_url
-    
+
     @property
     def target_username(self):
         return self._target_username
-    
+
     @property
     def target_port(self):
         return self._target_port
-    
+
     def _create_empty_config(self, config_file):
         """
         """
         with config_file.open('w') as outfile:
-            data = {'target': {'directory': self._target_directory, 'password': self._target_password, 'username': self._target_username, 'url': self._target_url, 
-                               'server': self._target_server}, 
+            data = {'target': {'directory': self._target_directory, 'password': self._target_password,
+                               'username': self._target_username, 'url': self._target_url,
+                               'server': self._target_server},
                     'who': ['person1'], 'per_page': 12, 'image_size': [500, 500], 'thumbnail_size': [240, 240]}
             yaml.dump(data, outfile)
 
@@ -109,8 +114,9 @@ class AlbumMakerConfig:
         """
         """
         with config_file.open('w') as outfile:
-            yaml.dump({'target':  {'directory': self._target_directory, 'password': self._target_password, 'username': self._target_username, 'url': self._target_url, 
-                                   'server': self._target_server, 'port': self._target_port}, 
+            yaml.dump({'target': {'directory': self._target_directory, 'password': self._target_password,
+                                  'username': self._target_username, 'url': self._target_url,
+                                  'server': self._target_server, 'port': self._target_port},
                        'who': self.who, 'per_page': self.per_page, 'image_size': self.image_size,
-                'thumbnail_size': self.thumbnail_size, 'style': self.style, 'local_dir': str(self.local_dir),
-                'image_suffix': self.image_suffix, 'other_suffix': self.other_suffix}, outfile)
+                       'thumbnail_size': self.thumbnail_size, 'style': self.style, 'local_dir': str(self.local_dir),
+                       'image_suffix': self.image_suffix, 'other_suffix': self.other_suffix}, outfile)

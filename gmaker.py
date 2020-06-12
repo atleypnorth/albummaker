@@ -3,11 +3,14 @@ from tkinter import ttk
 from tkinter import filedialog
 from pathlib import Path
 import logging
-import yaml
 import webbrowser
 
 from maker import AlbumMaker, _logger as maker_logger
 from config import AlbumMakerConfig
+
+
+big_font = ("Times New Roman", 15)
+body_font = ("Times New Roman", 10)
 
 
 class GUILoggingHandler(logging.Handler):
@@ -24,10 +27,45 @@ class GUILoggingHandler(logging.Handler):
         self.text_area.update()
 
 
+class ConfigDialog(tk.Toplevel):
+
+    def __init__(self, parent, album_config):
+
+        super().__init__(parent)
+        self.transient(parent)
+        self.parent = parent
+        self.album_config = album_config
+        self.geometry('400x400')
+
+        ttk.Label(self, text="Configuration", font=big_font).grid(row=0, column=0, columnspan=3, sticky='EW')
+
+        # Directory select
+        ttk.Label(self, text="Local album directory", font=body_font).grid(column=0, row=3, sticky='W')
+        self.folder = tk.StringVar(value=self.album_config.local_dir)
+        self.folder.set(self.album_config.local_dir)
+        ttk.Entry(self, textvariable=self.folder).grid(column=1, row=3, sticky='EW')
+        find_dir = ttk.Button(self, text="...", command=self.get_folder)
+        find_dir.grid(column=2, row=3)
+
+        self.cancel = ttk.Button(self, text='Cancel', command=self.destroy)
+        self.cancel.grid(column=1, row=4, sticky='W')
+        self.ok = ttk.Button(self, text='OK', command=self._save_config)
+        self.ok.grid(column=1, row=4, sticky='E')
+
+    def get_folder(self):
+        folder_selected = filedialog.askdirectory(initialdir=self.folder.get())
+        if folder_selected:
+            self.folder.set(folder_selected)
+
+    def _save_config(self):
+        self.album_config.local_dir = self.folder.get()
+        self.destroy
+
+
 class AlbumMakerGUI(tk.Frame):
     """
     """
-    
+
     def __init__(self, master=None, config_file=None):
         super().__init__(master)
         self.master = master
@@ -42,8 +80,6 @@ class AlbumMakerGUI(tk.Frame):
         maker_logger.addHandler(handler)
 
     def create_widgets(self):
-        big_font = ("Times New Roman", 15)
-        body_font = ("Times New Roman", 10)
         self.title_frame = ttk.Label(self, text='Album Maker', font=big_font).grid(row=0, column=0, sticky='EW',
                                                                                    columnspan=3)
 
@@ -75,11 +111,19 @@ class AlbumMakerGUI(tk.Frame):
 
         # Command buttons
         self.generate = ttk.Button(self, text='Generate', command=self.generate, state='disabled')
-        self.generate.grid(column=0, row=10)
+        self.generate.grid(column=0, row=10, sticky='W')
         self.upload = ttk.Button(self, text='Upload', command=self.upload, state='disabled')
-        self.upload.grid(column=1, row=10)
+        self.upload.grid(column=0, row=10, sticky='E')
+        self.config_btn = ttk.Button(self, text='Config', command=self.create_config_window)
+        self.config_btn.grid(column=1, row=10, sticky='E')
         self.quit = ttk.Button(self, text='Quit', command=self.master.destroy)
-        self.quit.grid(column=2, row=10)
+        self.quit.grid(column=2, row=10, sticky='E')
+
+    def create_config_window(self):
+        """
+        """
+        d = ConfigDialog(self, self.album_config)
+        self.wait_window(d)
 
     def get_folder(self):
         folder_selected = filedialog.askdirectory()
