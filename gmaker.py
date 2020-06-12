@@ -127,13 +127,17 @@ class AlbumMakerGUI(tk.Frame):
 
     def get_folder(self):
         folder_selected = filedialog.askdirectory()
-        self.folder.set(folder_selected)
-        if self.who_choice.current() is not None:
-            self.generate['state'] = 'normal'
-        else:
-            self.generate['state'] = 'disabled'
+        if folder_selected:
+            if folder_selected != self.folder.get():
+                self.output.delete(1.0, tk.END)
+            self.folder.set(folder_selected)
+            if self.who_choice.current() is not None:
+                self.generate['state'] = 'normal'
+            else:
+                self.generate['state'] = 'disabled'
 
     def who_selected(self, event):
+        self.output.delete(1.0, tk.END)
         if self.folder.get():
             self.generate['state'] = 'normal'
         else:
