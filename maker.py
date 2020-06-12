@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 import logging
 from jinja2 import FileSystemLoader, Environment
 import shutil
-from PIL import Image
+from PIL import Image, ImageOps
 import paramiko
 
 from config import AlbumMakerConfig
@@ -48,7 +48,7 @@ class AlbumMaker:
         """Scan input dir for files
         """
         self.files = []
-        for file in self.input_dir.glob('*'):
+        for file in sorted(self.input_dir.glob('*')):
             file_suffix = file.suffix.lower()
             if file_suffix in self._config.image_suffix:
                 _logger.info(f"Adding {file}")
@@ -63,12 +63,14 @@ class AlbumMaker:
         template = self.environ.get_template('image.tmpl')
         output = Path(workdir) / Path('images') / Path(f"{file.stem}.html")
         with Image.open(file) as im:
+            im = ImageOps.exif_transpose(im)
             im.thumbnail(self._config.thumbnail_size)
             thumbfile = self.thumb_dir / Path(file.name)
             im.save(thumbfile)
             entry['thumb_width'] = im.width
             entry['thumb_height'] = im.height
         with Image.open(file) as im:
+            im = ImageOps.exif_transpose(im)
             im.thumbnail(self._config.image_size)
             resized_file = self.image_dir / Path(file.name)
             im.save(resized_file)
