@@ -151,7 +151,8 @@ class AlbumMaker:
     def upload(self):
         """Upload directory to server
         """
-        upload_base = self._config.target_directory + '/' + self.who + '/' + self.input_dir.name.lower().replace(' ', '')
+        upload_base = self._config.target_directory + '/' + self.who + '/' + \
+            self.input_dir.name.lower().replace(' ', '')
         _logger.info(f"Uploading to {upload_base}")
         with paramiko.Transport((self._config.target_server, self._config.target_port)) as transport:
             transport.connect(username=self._config.target_username, password=self._config.target_password)

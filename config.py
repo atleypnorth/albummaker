@@ -18,6 +18,8 @@ class AlbumMakerConfig:
             if not config_file.exists():
                 self._create_empty_config(config_file)
 
+        self._yaml_file = config_file
+
         with open(config_file) as infile:
             self._config = yaml.safe_load(infile)
 
@@ -36,7 +38,7 @@ class AlbumMakerConfig:
         self._target_url = self._target.get('url')
         self._target_username = self._target.get('username')
         self._who = self._config.get('who', ['noname'])
-        self._save_config(config_file)
+        self.save()
 
     @property
     def local_dir(self):
@@ -46,6 +48,8 @@ class AlbumMakerConfig:
 
     @local_dir.setter
     def local_dir(self, value):
+        if not Path(value).is_dir():
+            raise ValueError(f"{value} is not a valid directory")
         self._local_dir = value
 
     @property
@@ -60,6 +64,10 @@ class AlbumMakerConfig:
     def per_page(self):
         return self._per_page
 
+    @per_page.setter
+    def per_page(self, value):
+        self._per_page = value
+
     @property
     def style(self):
         return self._style
@@ -68,9 +76,17 @@ class AlbumMakerConfig:
     def thumbnail_size(self):
         return self._thumbnail_size
 
+    @thumbnail_size.setter
+    def thumbnail_size(self, value):
+        self._thumbnail_size = value
+
     @property
     def image_size(self):
         return self._image_size
+
+    @image_size.setter
+    def image_size(self, value):
+        self._image_size = value
 
     @property
     def who(self):
@@ -80,21 +96,41 @@ class AlbumMakerConfig:
     def target_password(self):
         return base64.b64decode(self._target_password).decode()
 
+    @target_password.setter
+    def target_password(self, value):
+        self._target_password = base64.b64encode(value.encode()).decode()
+
     @property
     def target_directory(self):
         return self._target_directory
+
+    @target_directory.setter
+    def target_directory(self, value):
+        self._target_directory = value
 
     @property
     def target_server(self):
         return self._target_server
 
+    @target_server.setter
+    def target_server(self, value):
+        self._target_server = value
+
     @property
     def target_url(self):
         return self._target_url
 
+    @target_url.setter
+    def target_url(self, value):
+        self._target_url = value
+
     @property
     def target_username(self):
         return self._target_username
+
+    @target_username.setter
+    def target_username(self, value):
+        self._target_username = value
 
     @property
     def target_port(self):
@@ -110,10 +146,10 @@ class AlbumMakerConfig:
                     'who': ['person1'], 'per_page': 12, 'image_size': [500, 500], 'thumbnail_size': [240, 240]}
             yaml.dump(data, outfile)
 
-    def _save_config(self, config_file):
+    def save(self):
         """
         """
-        with config_file.open('w') as outfile:
+        with self._yaml_file.open('w') as outfile:
             yaml.dump({'target': {'directory': self._target_directory, 'password': self._target_password,
                                   'username': self._target_username, 'url': self._target_url,
                                   'server': self._target_server, 'port': self._target_port},
