@@ -122,8 +122,6 @@ class ConfigDialog(tk.Toplevel):
         self.ok = ttk.Button(self, text='OK', command=self._save_config)
         self.ok.grid(column=1, row=row_number, sticky=tk.E)
 
-        self.pack()
-
     def get_folder(self):
         folder_selected = filedialog.askdirectory(initialdir=self.folder.get())
         if folder_selected:
