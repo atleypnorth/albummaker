@@ -15,14 +15,13 @@ class AlbumMakerConfig:
             config_file = config_path / Path('config.yml')
             if not config_path.exists():
                 config_path.mkdir()
-            if not config_file.exists():
-                self._create_empty_config(config_file)
+            if config_file.exists():
+                with open(config_file) as infile:
+                    self._config = yaml.safe_load(infile)
+            else:
+                self._config = {}
 
         self._yaml_file = config_file
-
-        with open(config_file) as infile:
-            self._config = yaml.safe_load(infile)
-
         self._image_suffix = self._config.get('image_suffix', ['.jpg'])
         self._other_suffix = self._config.get('other_suffix', ['.pdf', '.mov', '.mp4'])
         self._per_page = self._config.get('per_page', 12)
@@ -94,7 +93,9 @@ class AlbumMakerConfig:
 
     @property
     def target_password(self):
-        return base64.b64decode(self._target_password).decode()
+        if self._target_password:
+            return base64.b64decode(self._target_password).decode()
+        return ''
 
     @target_password.setter
     def target_password(self, value):
@@ -140,9 +141,9 @@ class AlbumMakerConfig:
         """
         """
         with config_file.open('w') as outfile:
-            data = {'target': {'directory': self._target_directory, 'password': self._target_password,
-                               'username': self._target_username, 'url': self._target_url,
-                               'server': self._target_server},
+            data = {'target': {'directory': self.target_directory, 'password': self._target_password,
+                               'username': self.target_username, 'url': self.target_url,
+                               'server': self.target_server},
                     'who': ['person1'], 'per_page': 12, 'image_size': [500, 500], 'thumbnail_size': [240, 240]}
             yaml.dump(data, outfile)
 

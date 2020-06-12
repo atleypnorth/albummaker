@@ -133,11 +133,12 @@ class ConfigDialog(tk.Toplevel):
         self.album_config.image_size = [self.image_size_x.get(), self.image_size_y.get()]
         self.album_config.thumbnail_size = [self.thumb_size_x.get(), self.thumb_size_y.get()]
 
-        _logger.info('Checking remote details')
-        with paramiko.Transport((self.server.get(), self.album_config.target_port)) as transport:
-            transport.connect(username=self.username.get(), password=self.password.get())
-            with paramiko.SFTPClient.from_transport(transport) as sftp:
-                sftp.stat(self.directory.get())
+        if self.server.get() and self.username.get():
+            _logger.info('Checking remote details')
+            with paramiko.Transport((self.server.get(), self.album_config.target_port)) as transport:
+                transport.connect(username=self.username.get(), password=self.password.get())
+                with paramiko.SFTPClient.from_transport(transport) as sftp:
+                    sftp.stat(self.directory.get())
 
         self.album_config.target_server = self.server.get()
         self.album_config.target_directory = self.directory.get()
