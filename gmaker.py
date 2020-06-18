@@ -56,7 +56,7 @@ class ConfigDialog(tk.Toplevel):
         self.number_per_page = tk.IntVar(value=self.album_config.per_page)
         ttk.Label(self, text="Number per page", font=body_font). \
             grid(column=0, row=row_number, sticky=tk.W)
-        ttk.Spinbox(self, textvariable=self.number_per_page, from_=8, to=30).grid(column=1, row=row_number)
+        ttk.Spinbox(self, textvariable=self.number_per_page, from_=8, to=200).grid(column=1, row=row_number)
 
         # Image size
         row_number += 2
