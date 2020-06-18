@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+    <title>{{ who }} : {{ title }}</title>
+  </head>
+  <body>
+
+
+<main role="main">
+  <section class="jumbotron text-center">
+    <div class="container">
+      <h1>{{ who }} : {{ title }}</h1>
+    </div>
+  </section>
+<div class="album py-7 bg-light">
+    <div class="container">
+      <div class="row">
+{% for entry in entries %}
+        <div class="col-md-3">
+          <div class="card mb-3 shadow-sm text-center">
+            {% if entry.type == 'image' %}
+            <a href="{{ entry.link }}" class="stretched-link"><img class="card-img-top-center" src="{{ entry.thumb }}" alt="{{ entry.link_text }}" ></a>
+            {% elif entry.type == 'movie' %}
+            <a href="{{ entry.link }}" class="stretched-link"><img class="card-img-top" src="resources/movie-on-monitor-screen.svg" alt="{{ entry.link_text }}" height="{{ thumb_y }}" width="{{ thumb_x }}"></a>
+            {% elif entry.type == 'doc' %}
+            <a href="{{ entry.link }}" class="stretched-link"><img class="card-img-top" src="resources/contract.svg" alt="{{ entry.link_text }}" height="{{ thumb_y }}" width="{{ thumb_x }}"></a>
+            {% endif %}
+            <div class="card-body">
+              <p class="card-title">{{ entry.name }}</p>
+              <p class="card-text">{{ entry.link_text }}</p>
+            </div>
+          </div>
+        </div>
+{% endfor %}
+      </div>
+    </div>
+</div>
+</main>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+<div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+  </body>
+</html>

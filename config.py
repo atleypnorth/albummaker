@@ -23,9 +23,10 @@ class AlbumMakerConfig:
 
         self._yaml_file = config_file
         self._image_suffix = self._config.get('image_suffix', ['.jpg'])
-        self._other_suffix = self._config.get('other_suffix', ['.pdf', '.mov', '.mp4'])
+        self._movie_suffix = self._config.get('movie_suffix', ['.mov', '.mp4'])
+        self._doc_suffix = self._config.get('doc_suffix', ['.pdf'])
         self._per_page = self._config.get('per_page', 12)
-        self._style = self._config.get('style', 'default')
+        self._style = self._config.get('style', 'boostrap')
         self._thumbnail_size = self._config.get('thumbnail_size', [240, 240])
         self._image_size = self._config.get('image_size', [500, 500])
         self._local_dir = self._config.get('local_dir', str(Path.home() / Path('albums')))
@@ -56,8 +57,12 @@ class AlbumMakerConfig:
         return self._image_suffix
 
     @property
-    def other_suffix(self):
-        return self._other_suffix
+    def movie_suffix(self):
+        return self._movie_suffix
+
+    @property
+    def doc_suffix(self):
+        return self._doc_suffix
 
     @property
     def per_page(self):
@@ -156,4 +161,4 @@ class AlbumMakerConfig:
                                   'server': self._target_server, 'port': self._target_port},
                        'who': self.who, 'per_page': self.per_page, 'image_size': self.image_size,
                        'thumbnail_size': self.thumbnail_size, 'style': self.style, 'local_dir': str(self.local_dir),
-                       'image_suffix': self.image_suffix, 'other_suffix': self.other_suffix}, outfile)
+                       }, outfile)

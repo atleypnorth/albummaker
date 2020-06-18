@@ -1,0 +1,54 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+    <title>{{ entry.link_text}} (Image #{{ entry.img_number }} of {{ entry.total_images }})</title>
+  </head>
+  <body>
+
+
+<main role="main">
+      <section class="jumbotron text-center">
+        <div class="container">
+          <h1>{{ entry.link_text}} (#{{ entry.img_number }} of {{ entry.total_images }})</h1>
+          <ul class="nav justify-content-center">
+            <li class="nav-item">
+               <a class="nav-link {% if not entry.prev_image %}disabled{% endif %}" href="{{ entry.prev_image }}">Previous Image</a>
+            </li>
+            <li class="nav-item">
+               <a class="nav-link" href="{{ entry.index_page }}">Return to Index Page</a>
+            </li>
+            <li class="nav-item">
+               <a class="nav-link {% if not entry.next_image %}disabled{% endif %}" href="{{ entry.next_image }}">Next Image</a>
+            </li>
+        </ul>
+        </div>
+      </section>
+
+    <div class="container">
+      <div class="card text-center">
+{% if entry.type == 'image' %}
+            <img class="mx-auto d-block" src="{{ entry.image_file }}" alt="{{ entry.link_text }}" width="{{ entry.image_width }}" height="{{ entry.image_height }}" >
+{% elif entry.type == 'movie' %}
+            <video class="card-img-center" controls><source src="{{ entry.image_file }}" alt="{{ entry.link_text }}"></video>
+{% endif %} 
+        <div class="card-body">
+          <p class="card-title">{{ entry.name }}</p>
+        </div>
+      </div>
+    </div>  
+</main>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+  </body>
+</html>

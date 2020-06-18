@@ -53,29 +53,33 @@ class AlbumMaker:
             if file_suffix in self._config.image_suffix:
                 _logger.info(f"Adding {file}")
                 self.files.append((file, 'image'))
-            elif file_suffix in self._config.other_suffix:
+            elif file_suffix in self._config.movie_suffix:
                 _logger.info(f"Adding {file}")
-                self.files.append((file, 'other'))
+                self.files.append((file, 'movie'))
+            elif file_suffix in self._config.doc_suffix:
+                _logger.info(f"Adding {file}")
+                self.files.append((file, 'doc'))
 
     def make_image(self, file, entry, workdir):
         """Make page for an image
         """
         template = self.environ.get_template('image.tmpl')
-        output = Path(workdir) / Path('images') / Path(f"{file.stem}.html")
-        with Image.open(file) as im:
-            im = ImageOps.exif_transpose(im)
-            im.thumbnail(self._config.thumbnail_size)
-            thumbfile = self.thumb_dir / Path(file.name)
-            im.save(thumbfile)
-            entry['thumb_width'] = im.width
-            entry['thumb_height'] = im.height
-        with Image.open(file) as im:
-            im = ImageOps.exif_transpose(im)
-            im.thumbnail(self._config.image_size)
-            resized_file = self.image_dir / Path(file.name)
-            im.save(resized_file)
-            entry['image_width'] = im.width
-            entry['image_height'] = im.height
+        output = Path(workdir) / Path('images') / Path(entry["html_file"])
+        if entry['type'] == 'image':
+            with Image.open(file) as im:
+                im = ImageOps.exif_transpose(im)
+                im.thumbnail(self._config.thumbnail_size)
+                thumbfile = self.thumb_dir / Path(file.name)
+                im.save(thumbfile)
+                entry['thumb_width'] = im.width
+                entry['thumb_height'] = im.height
+            with Image.open(file) as im:
+                im = ImageOps.exif_transpose(im)
+                im.thumbnail(self._config.image_size)
+                resized_file = self.image_dir / Path(file.name)
+                im.save(resized_file)
+                entry['image_width'] = im.width
+                entry['image_height'] = im.height
         entry['image_file'] = file.name
         with output.open('w') as outfile:
             template.stream(entry=entry, title=self.title).dump(outfile)
@@ -103,7 +107,10 @@ class AlbumMaker:
             filename = f'page{page_number}.html'
         output = Path(workdir) / Path(filename)
         with output.open('w') as outfile:
-            template.stream(entries=entries, title=self.title, prev_page=prev_page, next_page=next_page).dump(outfile)
+            template.stream(entries=entries, title=self.title, prev_page=prev_page, next_page=next_page,
+                            thumb_x=self._config.thumbnail_size[0],
+                            thumb_y=self._config.thumbnail_size[1],
+                            who=self.who.capitalize()).dump(outfile)
         return filename
 
     def make_index(self, workdir):
@@ -114,10 +121,13 @@ class AlbumMaker:
         for file_number, (file, file_type) in enumerate(self.files, start=1):
             index_page = '../index.html' if page_number == 0 else f"../page{page_number}.html"
             entry = {'type': file_type, 'link_text': file.name, 'img_number': file_number,
+                     'next_image': f"image_{file_number+1}.html" if file_number < len(self.files) else None,
+                     'prev_image': f"image_{file_number-1}.html" if file_number > 1 else None,
                      'total_images': len(self.files), 'index_page': index_page,
                      'title': file.name}
-            if file_type == 'image':
-                entry['link'] = f'images/{file.stem}.html'
+            if file_type == 'image' or file_type == 'movie':
+                entry['html_file'] = f'image_{file_number}.html'
+                entry['link'] = f'images/{entry["html_file"]}'
                 self.make_image(file, entry, workdir)
             else:
                 entry['link'] = f'images/{file.name}'
