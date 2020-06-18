@@ -80,6 +80,8 @@ class AlbumMaker:
                 im.save(resized_file)
                 entry['image_width'] = im.width
                 entry['image_height'] = im.height
+        else:
+            entry['image_height'] = self._config.image_size[1]
         entry['image_file'] = file.name
         with output.open('w') as outfile:
             template.stream(entry=entry, title=self.title).dump(outfile)
@@ -125,12 +127,10 @@ class AlbumMaker:
                      'prev_image': f"image_{file_number-1}.html" if file_number > 1 else None,
                      'total_images': len(self.files), 'index_page': index_page,
                      'title': file.name}
-            if file_type == 'image' or file_type == 'movie':
-                entry['html_file'] = f'image_{file_number}.html'
-                entry['link'] = f'images/{entry["html_file"]}'
-                self.make_image(file, entry, workdir)
-            else:
-                entry['link'] = f'images/{file.name}'
+            entry['html_file'] = f'image_{file_number}.html'
+            entry['link'] = f'images/{entry["html_file"]}'
+            self.make_image(file, entry, workdir)
+            if file_type == 'doc' or file_type == 'movie':
                 shutil.copy(file, self.image_dir)
             entries.append(entry)
             if len(entries) == self._config.per_page:

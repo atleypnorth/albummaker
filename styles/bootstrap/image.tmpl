@@ -21,7 +21,7 @@
                <a class="nav-link {% if not entry.prev_image %}disabled{% endif %}" href="{{ entry.prev_image }}">Previous Image</a>
             </li>
             <li class="nav-item">
-               <a class="nav-link" href="{{ entry.index_page }}">Return to Index Page</a>
+               <a class="nav-link" href="{{ entry.index_page }}">Album Index</a>
             </li>
             <li class="nav-item">
                <a class="nav-link {% if not entry.next_image %}disabled{% endif %}" href="{{ entry.next_image }}">Next Image</a>
@@ -46,6 +46,8 @@
             <img class="mx-auto d-block" src="{{ entry.image_file }}" alt="{{ entry.link_text }}" width="{{ entry.image_width }}" height="{{ entry.image_height }}" >
 {% elif entry.type == 'movie' %}
             <video class="mx-auto d-block" controls autoplay><source src="{{ entry.image_file }}" alt="{{ entry.link_text }}"></video>
+{% elif entry.type == 'doc' %}
+            <iframe class="mx-auto d-block" src="{{ entry.image_file }}" alt="{{ entry.link_text }}" width="100%" height="{{ entry.image_height }}px">You shouldnt see this</iframe>
 {% endif %} 
         </div>
         <div class="col-md-1">
