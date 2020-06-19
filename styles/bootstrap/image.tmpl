@@ -13,8 +13,7 @@
   </head>
 <body>
 <main role="main">
-      <section class="jumbotron text-center">
-        <div class="container">
+        <div class="container text-center bg-light">
           <h1>{{ entry.title }} (#{{ entry.img_number }} of {{ entry.total_images }})</h1>
           <ul class="nav justify-content-center">
             <li class="nav-item">
@@ -28,7 +27,6 @@
             </li>
         </ul>
         </div>
-      </section>
 
     <div class="container">
       <div class="row" >
@@ -45,7 +43,7 @@
 {% if entry.type == 'image' %}
             <img class="mx-auto d-block" src="{{ entry.image_file }}" alt="{{ entry.link_text }}" width="{{ entry.image_width }}" height="{{ entry.image_height }}" >
 {% elif entry.type == 'movie' %}
-            <video class="mx-auto d-block" controls autoplay><source src="{{ entry.image_file }}" alt="{{ entry.link_text }}"></video>
+            <video class="mx-auto d-block" controls autoplay><source src="{{ entry.image_file }}" alt="{{ entry.link_text }}" style="max-width:100%;height:auto;"></video>
 {% elif entry.type == 'doc' %}
             <iframe class="mx-auto d-block" src="{{ entry.image_file }}" alt="{{ entry.link_text }}" width="100%" height="{{ entry.image_height }}px">You shouldnt see this</iframe>
 {% endif %} 
