@@ -43,7 +43,7 @@
 {% if entry.type == 'image' %}
             <img class="mx-auto d-block" src="{{ entry.image_file }}" alt="{{ entry.link_text }}" width="{{ entry.image_width }}" height="{{ entry.image_height }}" >
 {% elif entry.type == 'movie' %}
-            <video class="mx-auto d-block" controls autoplay><source src="{{ entry.image_file }}" alt="{{ entry.link_text }}" style="max-width:100%;height:auto;"></video>
+            <video class="mx-auto d-block" controls autoplay style="max-height:800px;"><source src="{{ entry.image_file }}" alt="{{ entry.link_text }}"></video>
 {% elif entry.type == 'doc' %}
             <iframe class="mx-auto d-block" src="{{ entry.image_file }}" alt="{{ entry.link_text }}" width="100%" height="{{ entry.image_height }}px">You shouldnt see this</iframe>
 {% endif %} 
